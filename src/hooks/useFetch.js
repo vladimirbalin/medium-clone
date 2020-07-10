@@ -3,37 +3,37 @@ import { useEffect, useState } from "react";
 
 export const useFetch = (endPoint) => {
   const [response, setResponse] = useState(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isFetching, setIsFetching] = useState(false)
   const [error, setError] = useState(null)
-  const [postObject, setPostObject] = useState(null)
+  const [options, setOptions] = useState({})
 
-  const doFetch = (postObject) => {
-    setIsLoading(true);
-    setPostObject(postObject);
+  const doFetch = (formData) => {
+    setIsFetching(true);
+    setOptions(formData);
   }
 
   useEffect(() => {
-    if (!isLoading) {
+    if (!isFetching) {
       return
     }
-    axios.post(`https://conduit.productionready.io/api/${endPoint}`, postObject)
+    axios(`https://conduit.productionready.io/api/${endPoint}`, options)
       .then(res => {
         console.log('resolve', res);
         setResponse(res.data);
-        setIsLoading(false);
+        setIsFetching(false);
       })
       .catch(err => {
         console.error(err);
         setError(err.response.data);
-        setIsLoading(false);
+        setIsFetching(false);
       });
-  }, [isLoading])
+  }, [isFetching])
 
 
   return [
     {
       response,
-      isLoading,
+      isFetching,
       error
     },
     doFetch

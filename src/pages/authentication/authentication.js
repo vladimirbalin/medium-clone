@@ -1,11 +1,17 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useFetch } from "hooks/useFetch";
+import SignIn from "components/sign-in";
+import SignUp from "components/sign-up";
 
-const Authentication = () => {
+const Authentication = ({ match, history, location }) => {
+  const isLoginPage = location.pathname === '/login';
+  const apiUrl = isLoginPage ? 'users/login' : 'users'
+
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [{ response, isLoading, error }, doFetch] = useFetch('users/login');
+  const [{ response, isFetching, error }, doFetch] = useFetch(apiUrl);
 
   const handleChange = (event) => {
     const { type, value } = event.target;
@@ -13,45 +19,37 @@ const Authentication = () => {
       setEmail(value)
     } else if (type === 'password') {
       setPassword(value)
+    } else if (type === 'text') {
+      setUsername(value)
     }
   }
   const handleSubmit = async (event) => {
     event.preventDefault();
-    doFetch({user: {email, password}});
+    const formData = isLoginPage ? { email, password } : { email, password, username }
+    doFetch({
+      method: 'post',
+      data: {
+        user: formData
+      }
+    });
   }
 
   return <div className='auth-page'>
     <div className="container page">
       <div className="row">
-        <div className="col-md-6 offset-md-3 cols-xs-12">
-          <h1 className='text-xs-center'>Login</h1>
-          <p className="text-xs-center">
-            <Link to='/registration'>Need an account?</Link>
-          </p>
-          <form onSubmit={handleSubmit}>
-            <fieldset>
-              <fieldset className="form-group">
-                <input value={email}
-                       onChange={handleChange}
-                       type="email"
-                       className='form-control form-control-lg'
-                       placeholder='Email'/>
-              </fieldset>
-              <fieldset className="form-group">
-                <input value={password}
-                       onChange={handleChange}
-                       type="password"
-                       className='form-control form-control-lg'
-                       placeholder='Password'/>
-              </fieldset>
-              <button className="btn btn-lg btn-primary pull-xs-right"
-                      type='submit'
-                      disabled={isLoading}>
-                Sign-in
-              </button>
-            </fieldset>
-          </form>
-        </div>
+        {isLoginPage ?
+          <SignIn handleSubmit={handleSubmit}
+                  handleChange={handleChange}
+                  email={email}
+                  password={password}
+                  isFetching={isFetching}/>
+          :
+          <SignUp handleSubmit={handleSubmit}
+                  handleChange={handleChange}
+                  username={username}
+                  email={email}
+                  password={password}
+                  isFetching={isFetching}/>}
       </div>
     </div>
   </div>
