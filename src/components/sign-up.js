@@ -11,14 +11,17 @@ const SignUp = ({ handleSubmit, handleChange, username, email, password, isFetch
     <form onSubmit={handleSubmit}>
       <fieldset>
         <FormInput value={username}
+                   name='username'
                    onChange={handleChange}
                    type="text"
                    placeholder='Username'/>
         <FormInput value={email}
+                   name='email'
                    onChange={handleChange}
                    type="email"
                    placeholder='Email'/>
         <FormInput value={password}
+                   name='password'
                    onChange={handleChange}
                    type="password"
                    placeholder='Password'/>

@@ -18,7 +18,6 @@ export const useFetch = (endPoint) => {
     }
     axios(`https://conduit.productionready.io/api/${endPoint}`, options)
       .then(res => {
-        console.log('resolve', res);
         setResponse(res.data);
         setIsFetching(false);
       })
@@ -27,7 +26,7 @@ export const useFetch = (endPoint) => {
         setError(err.response.data);
         setIsFetching(false);
       });
-  }, [isFetching])
+  }, [isFetching, endPoint, options])
 
 
   return [

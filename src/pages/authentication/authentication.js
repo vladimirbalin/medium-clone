@@ -1,8 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useContext, useEffect, useState } from "react";
+import { Redirect } from "react-router-dom";
 import { useFetch } from "hooks/useFetch";
 import SignIn from "components/sign-in";
 import SignUp from "components/sign-up";
+import { useLocalStorage } from "hooks/useLocalStorage";
+import { CurrentUserContext } from "context/currentUser";
 
 const Authentication = ({ match, history, location }) => {
   const isLoginPage = location.pathname === '/login';
@@ -11,19 +13,22 @@ const Authentication = ({ match, history, location }) => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [successfulSubmit, setSuccessfulSubmit] = useState(false);
   const [{ response, isFetching, error }, doFetch] = useFetch(apiUrl);
-
+  const [token, setToken] = useLocalStorage('token');
+  const [currentUserState, setCurrentUserState] = useContext(CurrentUserContext);
+  console.log(currentUserState, setCurrentUserState)
   const handleChange = (event) => {
-    const { type, value } = event.target;
-    if (type === 'email') {
+    const { name, value } = event.target;
+    if (name === 'email') {
       setEmail(value)
-    } else if (type === 'password') {
+    } else if (name === 'password') {
       setPassword(value)
-    } else if (type === 'text') {
+    } else if (name === 'username') {
       setUsername(value)
     }
   }
-  const handleSubmit = async (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault();
     const formData = isLoginPage ? { email, password } : { email, password, username }
     doFetch({
@@ -33,7 +38,23 @@ const Authentication = ({ match, history, location }) => {
       }
     });
   }
+  useEffect(() => {
+    if(!response){
+      return
+    }
+    setToken(response.user.token);
+    setSuccessfulSubmit(true);
+    setCurrentUserState(state => ({
+      ...state,
+      isLoading: false,
+      isLoggedIn: true,
+      currentUser: response.user
+    }))
+  }, [response, setToken])
 
+  if(successfulSubmit){
+    return <Redirect to='/' />
+  }
   return <div className='auth-page'>
     <div className="container page">
       <div className="row">

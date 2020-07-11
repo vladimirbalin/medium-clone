@@ -1,6 +1,7 @@
 import React from "react";
 
-const GlobalFeed = () => {
+const GlobalFeed = (props) => {
+  console.log(props)
   return <div>
     GlobalFeed
   </div>
